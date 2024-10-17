@@ -1,0 +1,1 @@
+{ "dependencies": { "crypto": "^1.0.1", "express": "^4.21.1", "express-session": "^1.18.1", "nodemailer": "^6.9.15" }, "name": "server", "module": "index.ts", "type": "module", "devDependencies": { "@types/bun": "latest", "@types/express": "^5.0.0", "@types/express-session": "^1.18.0", "@types/nodemailer": "^6.4.16" }, "peerDependencies": { "typescript": "^5.0.0" } }
