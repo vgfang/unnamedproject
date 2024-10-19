@@ -1,8 +1,10 @@
 import express from "express";
 import session from "express-session";
-import routes from "./routes/routes";
+import router from "./routes/routes";
 
 import { type Express } from "express";
+
+import passport from "./config/passportConfig";
 
 const app: Express = express();
 
@@ -18,7 +20,11 @@ app.use(
   }),
 );
 
+// passport setup
+app.use(passport.initialize());
+app.use(passport.session());
+
 // routes
-app.use("/", routes);
+app.use("/", router);
 
 export default app;
