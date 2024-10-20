@@ -25,6 +25,5 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // routes
-app.use("/", router);
-
+app.use("/api", router);
 export default app;
