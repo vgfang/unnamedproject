@@ -6,17 +6,11 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await apiService.getTest();
+      console.log(data);
       return data;
     };
-
-    try {
-      const result = fetchData();
-      console.log(result);
-    } catch (error) {
-      console.log(error);
-    }
+    fetchData();
   }, []);
-
   return (
     <>
       <h1>Home</h1>

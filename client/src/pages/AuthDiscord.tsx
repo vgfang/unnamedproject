@@ -25,10 +25,17 @@ const AuthDiscord = () => {
     const code = params.get("code");
 
     if (!code) {
-      console.log(OAuthUrl);
       window.location.href = OAuthUrl;
     } else {
       // TODO: session start, token
+      apiService
+        .loginWithDiscord(code)
+        .then((result) => {
+          console.log(result.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       // navigate("/home");
     }
   }, [navigate]);

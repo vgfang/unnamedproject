@@ -7,9 +7,17 @@ const api = axios.create({
 export const getTest = async () => {
   try {
     const response = await api.get("test");
-    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw error;
+  }
+};
+
+export const loginWithDiscord = async (code: string) => {
+  try {
+    const body = { code: code };
+    return await api.post("auth/login-discord", body);
+  } catch (error) {
+    throw error;
   }
 };

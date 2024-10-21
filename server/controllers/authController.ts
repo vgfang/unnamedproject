@@ -8,9 +8,11 @@ export const loginViaDiscord = async (
 ): Promise<void> => {
   try {
     const { code } = req.body;
-    discordAuth.loginDiscord(code);
+    res.status(200).json({ code: code });
+    return;
+    // discordAuth.loginDiscord(code);
   } catch (error) {
     res.status(500).json({ error: error });
+    return;
   }
-  return;
 };
