@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the backend app using Bun
-CMD ["bun", "run", "index.ts"]
+CMD ["bun", "run", "--hot", "index.ts"]

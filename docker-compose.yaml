@@ -20,7 +20,7 @@ services:
       - "3000:3000"
     volumes:
       - ./server:/server
-    command: ["bun", "run", "index.ts", "--hot"]
+    command: ["bun", "--hot", "index.ts"]
 
   client:
     build:

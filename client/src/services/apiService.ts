@@ -13,9 +13,9 @@ export const getTest = async () => {
   }
 };
 
-export const loginWithDiscord = async (code: string) => {
+export const loginWithDiscord = async (code: string, redirectURI: string) => {
   try {
-    const body = { code: code };
+    const body = { code: code, redirectURI: redirectURI };
     return await api.post("auth/login-discord", body);
   } catch (error) {
     throw error;
