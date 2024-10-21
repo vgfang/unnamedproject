@@ -7,7 +7,7 @@ import * as optCtr from "../controllers/optController.ts";
 
 const router: RouterType = Router();
 
-router.get("/", ctr.test);
+router.get("/test", ctr.test);
 
 router.post("/request-otp", optCtr.sendOPT);
 

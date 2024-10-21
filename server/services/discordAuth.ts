@@ -28,10 +28,10 @@ const getDiscordAccessTokenInfo = async (code: string) => {
 };
 
 export const loginDiscord = async (code: string) => {
-  // first, get the access token
+  // first, get the access token and info using code
   const discordInfo = getDiscordAccessTokenInfo(code);
   console.log(discordInfo);
 
-  // save access token
+  // then, save access token
   // TokenService.getToken();
 };

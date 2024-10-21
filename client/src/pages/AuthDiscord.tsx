@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import * as apiService from "../services/apiService";
 
 const AuthDiscord = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const AuthDiscord = () => {
       window.location.href = OAuthUrl;
     } else {
       // TODO: session start, token
-      navigate("/home");
+      // navigate("/home");
     }
   }, [navigate]);
 
