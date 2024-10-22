@@ -11,7 +11,7 @@ const AuthDiscord = () => {
   const OAuthUrl = `
     https://discord.com/oauth2/authorize?client_id=${
       import.meta.env.VITE_DISCORD_CLIENT_ID
-    }&response_type=code&redirect_uri=${redirectUri}&scope=email`;
+    }&response_type=code&redirect_uri=${redirectUri}&scope=identify+email`;
 
   useEffect(() => {
     // check if env variable is set

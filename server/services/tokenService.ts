@@ -5,16 +5,17 @@ export const upsertToken = async (
   user_id: number,
   type: TokenType,
   value: string,
+  discord_id = null,
 ) => {
   // upsert
   const query = `
-    INSERT INTO tokens (user_id, type, value)
-    VALUES ($1, $2, $3)
+    INSERT INTO tokens (user_id, type, value, discord_id)
+    VALUES ($1, $2, $3, $4)
     ON CONFLICT (user_id, type)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
   `;
-  const values = [user_id, type, value];
+  const values = [user_id, type, value, discord_id];
 
   try {
     const result = await db.query(query, values);
