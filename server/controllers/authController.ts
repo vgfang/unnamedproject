@@ -8,11 +8,14 @@ export const loginViaDiscord = async (
 ): Promise<void> => {
   try {
     const { code, redirectURI } = req.body;
+    // get user info
     const discordAuthResponse = await discordAuthService.loginDiscord(
       code,
       redirectURI,
     );
-    res.status(200).json(discordAuthResponse);
+    // set session
+    req.session.user = discordAuthResponse;
+    res.status(200).json({ message: "successfully logged in via discord" });
     return;
   } catch (error) {
     res.status(500).json({ error: error });

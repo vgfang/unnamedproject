@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import * as TokenService from "./tokenService";
 import * as UserService from "./userService";
 import { TokenType } from "../models/token";
+import { type User } from "../models/user";
+import { query } from "express";
 
 // use code to get accessToken, refreshToken
 const getDiscordTokenInfo = async (code: string, redirectURI: string) => {
@@ -46,7 +48,10 @@ const getDiscordInfoUsingToken = async (accessToken: string) => {
   }
 };
 
-export const loginDiscord = async (code: string, redirectURI: string) => {
+export const loginDiscord = async (
+  code: string,
+  redirectURI: string,
+): Promise<User> => {
   try {
     // first, get the access token and info using code
     const discordTokenInfo = await getDiscordTokenInfo(code, redirectURI);
@@ -57,17 +62,15 @@ export const loginDiscord = async (code: string, redirectURI: string) => {
     const discordInfo = await getDiscordInfoUsingToken(accessToken);
     console.log(discordInfo);
 
-    // then, create account if not exists
-    const defaultUsername = `user${uuidv4()}`;
-
-    let selectedUser = await UserService.selectUserUsingDiscordID(
+    // then, try to fetch user with that discordId
+    let selectedUser = (await UserService.selectUserUsingDiscordID(
       discordInfo.id,
-    );
+    )) as User;
 
-    if (selectedUser) {
-      console.log("user exists");
-    } else {
+    if (!selectedUser) {
+      // if user does not exist, make a new user
       console.log("user does not exist");
+      const defaultUsername = `user${uuidv4()}`;
       selectedUser = await UserService.insertUserIfNotExists(
         discordInfo.email,
         defaultUsername,
@@ -78,20 +81,18 @@ export const loginDiscord = async (code: string, redirectURI: string) => {
     // then, save access token
     const tokenInfo = await TokenService.upsertToken(
       selectedUser.id,
-      TokenType.auth,
+      TokenType.discordAuth,
       accessToken,
-      discordInfo.id,
+      discordTokenInfo.expires_in,
     );
     console.log(tokenInfo);
 
-    // then, login user using session
-    return { message: "Finished discord login" };
+    // lastly return user for setting session in controller
+    return selectedUser;
   } catch (err) {
     if (err instanceof Error) {
       console.log(err.message);
     }
     throw err;
   }
-  // then, save access token
-  // TokenService.getToken();
 };

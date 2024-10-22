@@ -26,18 +26,18 @@ const AuthDiscord = () => {
     if (!code) {
       window.location.href = OAuthUrl;
     } else {
-      // TODO: session start, token
-      console.log("trying");
       apiService
         .loginWithDiscord(code, redirectUri)
         .then((result) => {
-          console.log("result.data");
+          console.log("Finished Login");
           console.log(result.data);
+          // TODO: set local session using given data for performance
+          // need to sync with websockets later, somewhat complex
+          navigate("/home");
         })
         .catch((error) => {
           console.log(error);
         });
-      // navigate("/home");
     }
   }, [navigate]);
 
