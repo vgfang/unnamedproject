@@ -5,8 +5,6 @@ import cors from "cors";
 
 import { type Express } from "express";
 
-import passport from "./config/passportConfig";
-
 const app: Express = express();
 
 // json middleware
@@ -27,10 +25,6 @@ app.use(
     origin: "https://localhost:5173",
   }),
 );
-
-// passport setup
-app.use(passport.initialize());
-app.use(passport.session());
 
 // routes
 app.use("/api", router);

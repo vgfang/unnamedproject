@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS tokens (
     user_id INTEGER REFERENCES users(id),
     type VARCHAR(64) NOT NULL,
     value TEXT NOT NULL,
+    info JSONB,
     expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

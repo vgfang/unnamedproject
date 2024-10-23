@@ -1,11 +1,10 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 import * as TokenService from "./tokenService";
 import * as UserService from "./userService";
 import { TokenType } from "../models/token";
 import { type User } from "../models/user";
-import { query } from "express";
 
 // use code to get accessToken, refreshToken
 const getDiscordTokenInfo = async (code: string, redirectURI: string) => {
@@ -48,6 +47,7 @@ const getDiscordInfoUsingToken = async (accessToken: string) => {
   }
 };
 
+// return User using OAuth2 code and redirectURI
 export const loginDiscord = async (
   code: string,
   redirectURI: string,

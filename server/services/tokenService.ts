@@ -1,5 +1,5 @@
 import db from "../config/pgConfig";
-import { TokenType } from "../models/token";
+import { type Token, TokenType } from "../models/token";
 
 export const upsertToken = async (
   user_id: number,
@@ -21,7 +21,15 @@ export const upsertToken = async (
   if (expiresIn != null) {
     expiresAt = new Date(Date.now() + expiresIn * 1000);
   }
-  const values = [user_id, type, value, expiresAt];
+
+  const token: Token = {
+    user_id: user_id,
+    type: type,
+    value: value,
+    expires_at: expiresAt,
+  };
+
+  const values = [token.user_id, token.type, token.value, token.expires_at];
 
   try {
     const result = await db.query(query, values);
@@ -31,9 +39,14 @@ export const upsertToken = async (
   }
 };
 
-export const getToken = async (user_id: number, type: TokenType) => {
+// return Token if found (unique so there can only be one)
+// return null if not found
+export const getToken = async (
+  user_id: number,
+  type: TokenType,
+): Promise<Token | null> => {
   const query = `
-    SELECT FROM tokens
+    SELECT * FROM tokens
     WHERE user_id = $1
     AND type = $2
   `;
@@ -41,7 +54,11 @@ export const getToken = async (user_id: number, type: TokenType) => {
 
   try {
     const result = await db.query(query, values);
-    return result.rows[0];
+    if (result.rows.length === 0) {
+      return null;
+    } else {
+      return result.rows[0] as Token;
+    }
   } catch (error) {
     throw new Error("Failed to get token.");
   }

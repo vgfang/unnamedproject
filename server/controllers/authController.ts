@@ -22,3 +22,5 @@ export const loginViaDiscord = async (
     return;
   }
 };
+
+export const logout = async (req: Request, res: Response) => {};
