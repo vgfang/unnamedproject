@@ -81,7 +81,7 @@ export const loginDiscord = async (
     // then, save access token
     const tokenInfo = await TokenService.upsertToken(
       selectedUser.id,
-      TokenType.discordAuth,
+      TokenType.DiscordAccess,
       accessToken,
       discordTokenInfo.expires_in,
     );

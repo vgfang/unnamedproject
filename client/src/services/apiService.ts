@@ -1,4 +1,5 @@
 import axios from "axios";
+import { type User } from "../../../server/models/user";
 
 const api = axios.create({
   baseURL: "/api", // Backend base URL

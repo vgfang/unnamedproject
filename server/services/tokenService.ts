@@ -39,6 +39,27 @@ export const upsertToken = async (
   }
 };
 
+export const upsertTokenObj = async (token: Token) => {
+  // TODO: update the fields to include all
+
+  // upsert
+  const query = `
+    INSERT INTO tokens (user_id, type, value, expires_at)
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (user_id, type)
+    DO UPDATE SET value = EXCLUDED.value
+    RETURNING *;
+  `;
+  const values = [token.user_id, token.type, token.value, token.expires_at];
+
+  try {
+    const result = await db.query(query, values);
+    return result.rows[0];
+  } catch (error) {
+    throw new Error("Failed to insert token");
+  }
+};
+
 // return Token if found (unique so there can only be one)
 // return null if not found
 export const getToken = async (

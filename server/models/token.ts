@@ -1,7 +1,9 @@
 export enum TokenType {
-  auth = "auth",
-  discordAuth = "discordAuth",
-  discordRefresh = "discordRefresh",
+  // jwtTokens are used our application
+  JwtAuth = "JwtAccess",
+  JwtRefresh = "JwtRefresh",
+  DiscordAccess = "DiscordAccess",
+  DiscordRefresh = "DiscordRefresh",
 }
 
 export interface Token {
