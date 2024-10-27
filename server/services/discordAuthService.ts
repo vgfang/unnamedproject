@@ -1,7 +1,8 @@
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, v4 } from "uuid";
 
 import * as TokenService from "./tokenService";
+import * as AuthService from "./authService";
 import * as UserService from "./userService";
 import { TokenType } from "../models/token";
 import { type User } from "../models/user";
@@ -47,11 +48,11 @@ const getDiscordInfoUsingToken = async (accessToken: string) => {
   }
 };
 
-// return User using OAuth2 code and redirectURI
+// return JWTAccessToken using OAuth2 code and redirectURI
 export const loginDiscord = async (
   code: string,
   redirectURI: string,
-): Promise<User> => {
+): Promise<string> => {
   try {
     // first, get the access token and info using code
     const discordTokenInfo = await getDiscordTokenInfo(code, redirectURI);
@@ -76,17 +77,33 @@ export const loginDiscord = async (
       );
     }
 
-    // then, save access token
+    // then, save discord access token
     await TokenService.upsertToken(
       selectedUser.id,
       TokenType.DiscordAccess,
       accessToken,
-      null,
+      "",
       discordTokenInfo.expires_in,
     );
 
-    // lastly return user for setting session in controller
-    return selectedUser;
+    // then, save jwt access token and jwt refreshToken
+    const newSessionId = uuidv4();
+    const authResponse: AuthService.AuthResponse =
+      await AuthService.createNewAccessAndRefreshTokens(
+        selectedUser.id,
+        newSessionId,
+      );
+
+    // lastly return encoded access JWT token to be saved on client
+    if (authResponse.newAccessToken) {
+      const encodedJWTAccessToken = AuthService.encodeJWTToken(
+        selectedUser.id,
+        newSessionId,
+      );
+      return encodedJWTAccessToken;
+    } else {
+      throw new Error("failed to generate jwt access");
+    }
   } catch (err) {
     if (err instanceof Error) {
       console.log(err.message);

@@ -7,7 +7,8 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await apiService.getTest();
-      toastService.info(data.toString());
+      toastService.info("hello");
+      console.log(data);
       return data;
     };
     fetchData();

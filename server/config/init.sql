@@ -13,13 +13,12 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS tokens (
-    id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     type VARCHAR(64) NOT NULL,
     value TEXT NOT NULL,
-    session_id VARCHAR(37),
+    session_id VARCHAR(36) NOT NULL,
     info JSONB,
     expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, type, session_id)
+    PRIMARY KEY (user_id, type, session_id)
 );

@@ -7,6 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 type JWTPayload = {
   userId: number;
+  sessionId: string | null;
 };
 
 export type AuthResponse = {
@@ -20,6 +21,7 @@ export type AuthResponse = {
 const storeJWTToken = async (
   userId: number,
   type: TokenType,
+  sessionId: string,
 ): Promise<Token> => {
   let jwtExpiresIn = 60 * 60; // 1 hour for access
 
@@ -41,6 +43,7 @@ const storeJWTToken = async (
     type: type,
     value: jwtValue,
     expires_at: expiresAt,
+    session_id: sessionId,
   };
 
   try {
@@ -56,6 +59,18 @@ export const decodeJWTToken = async (jwtToken: string): Promise<Token> => {
   return decodedToken;
 };
 
+export const encodeJWTToken = async (
+  userId: number,
+  sessionId: string | null = null,
+): Promise<string> => {
+  const jwtPayload: JWTPayload = {
+    userId: userId,
+    sessionId: sessionId,
+  };
+  const jwtToken = jwt.sign(jwtPayload, JWT_SECRET);
+  return jwtToken;
+};
+
 export const tryAuthenticate = async (
   jwtToken: string,
   tokenType: TokenType,
@@ -66,6 +81,7 @@ export const tryAuthenticate = async (
     const tokenFromDb = await TokenService.getToken(
       decodedToken.userId,
       tokenType,
+      decodedToken.sessionId,
     );
 
     if (
@@ -87,11 +103,20 @@ export const tryAuthenticate = async (
 
 export const createNewAccessAndRefreshTokens = async (
   userId: number,
+  sessionId: string,
 ): Promise<AuthResponse> => {
   try {
     // refresh access and refresh token
-    const jwtAccess = await storeJWTToken(userId, TokenType.JwtAccess);
-    const jwtRefresh = await storeJWTToken(userId, TokenType.JwtRefresh);
+    const jwtAccess = await storeJWTToken(
+      userId,
+      TokenType.JwtAccess,
+      sessionId,
+    );
+    const jwtRefresh = await storeJWTToken(
+      userId,
+      TokenType.JwtRefresh,
+      sessionId,
+    );
 
     return {
       success: true,
@@ -114,6 +139,7 @@ export const useRefreshToken = async (
       // refresh access and refresh token
       const resWithTokens = await createNewAccessAndRefreshTokens(
         decodedToken.userId,
+        decodedToken.sessionId,
       );
       return resWithTokens;
     } else {

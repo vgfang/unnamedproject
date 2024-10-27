@@ -1,6 +1,10 @@
 import { type Response, type Request, type NextFunction } from "express";
+import { v4 } from "uuid";
 
 import * as discordAuthService from "../services/discordAuthService";
+import * as authService from "../services/authService";
+
+import { type User } from "../models/user";
 
 export const loginViaDiscord = async (
   req: Request,
@@ -8,14 +12,13 @@ export const loginViaDiscord = async (
 ): Promise<void> => {
   try {
     const { code, redirectURI } = req.body;
-    // get user info
-    const discordAuthResponse = await discordAuthService.loginDiscord(
+    // get jwt access token using code
+    const jwtAccessToken: string = await discordAuthService.loginDiscord(
       code,
       redirectURI,
     );
-    // set session
-    req.session.user = discordAuthResponse;
-    console.log(discordAuthResponse);
+
+    console.log(jwtAccessToken);
     res.status(200).json({ message: "successfully logged in via discord" });
     return;
   } catch (error) {

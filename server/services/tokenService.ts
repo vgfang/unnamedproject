@@ -5,7 +5,7 @@ export const upsertToken = async (
   user_id: number,
   type: TokenType,
   value: string,
-  session_id: string | null = null,
+  session_id: string,
   expiresIn: number | null = null,
 ) => {
   // upsert
@@ -63,7 +63,7 @@ export const upsertTokenObj = async (token: Token) => {
   const query = `
     INSERT INTO tokens (user_id, type, value, session_id, info, expires_at)
     VALUES ($1, $2, $3, $4, $5, $6)
-    ON CONFLICT (user_id, type)
+    ON CONFLICT (user_id, type, session_id)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
   `;
