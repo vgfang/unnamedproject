@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as apiService from "../services/apiService";
 import * as toastService from "../services/toastService";
+import { toast } from "react-toastify";
 
 const AuthDiscord = () => {
   const navigate = useNavigate();
@@ -29,11 +30,14 @@ const AuthDiscord = () => {
       apiService
         .loginWithDiscord(code, redirectUri)
         .then((result) => {
-          console.log("Finished Login");
           console.log(result.data);
-          // TODO: set local session using given data for performance
-          // need to sync with websockets later, somewhat complex
-          navigate("/home");
+          // store the jwt access token in local storage
+          if (result.data?.jwtAccess) {
+            localStorage.setItem("jwtAccess", result.data.jwtAccess);
+            navigate("/home");
+          } else {
+            toastService.error("Error getting access token");
+          }
         })
         .catch((error) => {
           console.log(error);

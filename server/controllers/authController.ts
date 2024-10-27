@@ -27,7 +27,7 @@ export const loginViaDiscord = async (
 
     res.status(200).json({
       message: "successfully logged in via discord",
-      data: { jwtAccess: discordLoginResp.jwtAccess },
+      jwtAccess: discordLoginResp.jwtAccess,
     });
     return;
   } catch (error) {
