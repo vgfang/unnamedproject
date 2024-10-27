@@ -15,6 +15,7 @@ export const loginViaDiscord = async (
     );
     // set session
     req.session.user = discordAuthResponse;
+    console.log(discordAuthResponse);
     res.status(200).json({ message: "successfully logged in via discord" });
     return;
   } catch (error) {
@@ -24,3 +25,5 @@ export const loginViaDiscord = async (
 };
 
 export const logout = async (req: Request, res: Response) => {};
+
+export const logoutAll = async (req: Request, res: Response) => {};

@@ -55,12 +55,10 @@ export const loginDiscord = async (
   try {
     // first, get the access token and info using code
     const discordTokenInfo = await getDiscordTokenInfo(code, redirectURI);
-    console.log(discordTokenInfo);
     const accessToken = discordTokenInfo.access_token;
 
     // then, get info from discord
     const discordInfo = await getDiscordInfoUsingToken(accessToken);
-    console.log(discordInfo);
 
     // then, try to fetch user with that discordId
     let selectedUser = (await UserService.selectUserUsingDiscordID(
@@ -79,13 +77,12 @@ export const loginDiscord = async (
     }
 
     // then, save access token
-    const tokenInfo = await TokenService.upsertToken(
+    await TokenService.upsertToken(
       selectedUser.id,
       TokenType.DiscordAccess,
       accessToken,
       discordTokenInfo.expires_in,
     );
-    console.log(tokenInfo);
 
     // lastly return user for setting session in controller
     return selectedUser;

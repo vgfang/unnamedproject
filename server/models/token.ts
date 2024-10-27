@@ -3,7 +3,6 @@ export enum TokenType {
   JwtAccess = "JwtAccess",
   JwtRefresh = "JwtRefresh",
   DiscordAccess = "DiscordAccess",
-  DiscordRefresh = "DiscordRefresh",
 }
 
 export interface Token {

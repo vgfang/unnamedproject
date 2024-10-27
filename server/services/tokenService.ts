@@ -40,17 +40,27 @@ export const upsertToken = async (
 };
 
 export const upsertTokenObj = async (token: Token) => {
-  // TODO: update the fields to include all
+  let info = null;
+  let expires_at = null;
+
+  if ("info" in token) {
+    info = token.info;
+  }
+
+  if ("expires_at" in token) {
+    expires_at = token.expires_at;
+  }
 
   // upsert
   const query = `
-    INSERT INTO tokens (user_id, type, value, expires_at)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO tokens (user_id, type, value, info, expires_at)
+    VALUES ($1, $2, $3, $4, $5)
     ON CONFLICT (user_id, type)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
   `;
-  const values = [token.user_id, token.type, token.value, token.expires_at];
+
+  const values = [token.user_id, token.type, token.value, info, expires_at];
 
   try {
     const result = await db.query(query, values);
