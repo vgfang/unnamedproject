@@ -9,6 +9,7 @@ export interface Token {
   user_id: number;
   type: string;
   value: string | null;
+  session_id?: string | null;
   info?: string | null;
   expires_at: Date | null;
   created_at?: Date;

@@ -5,13 +5,14 @@ export const upsertToken = async (
   user_id: number,
   type: TokenType,
   value: string,
+  session_id: string | null = null,
   expiresIn: number | null = null,
 ) => {
   // upsert
   const query = `
-    INSERT INTO tokens (user_id, type, value, expires_at)
-    VALUES ($1, $2, $3, $4)
-    ON CONFLICT (user_id, type)
+    INSERT INTO tokens (user_id, type, value, session_id, expires_at)
+    VALUES ($1, $2, $3, $4, $5)
+    ON CONFLICT (user_id, type, session_id)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
   `;
@@ -26,10 +27,17 @@ export const upsertToken = async (
     user_id: user_id,
     type: type,
     value: value,
+    session_id: session_id,
     expires_at: expiresAt,
   };
 
-  const values = [token.user_id, token.type, token.value, token.expires_at];
+  const values = [
+    token.user_id,
+    token.type,
+    token.value,
+    token.session_id,
+    token.expires_at,
+  ];
 
   try {
     const result = await db.query(query, values);
@@ -53,14 +61,21 @@ export const upsertTokenObj = async (token: Token) => {
 
   // upsert
   const query = `
-    INSERT INTO tokens (user_id, type, value, info, expires_at)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO tokens (user_id, type, value, session_id, info, expires_at)
+    VALUES ($1, $2, $3, $4, $5, $6)
     ON CONFLICT (user_id, type)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
   `;
 
-  const values = [token.user_id, token.type, token.value, info, expires_at];
+  const values = [
+    token.user_id,
+    token.type,
+    token.value,
+    token.session_id,
+    info,
+    expires_at,
+  ];
 
   try {
     const result = await db.query(query, values);
@@ -75,13 +90,15 @@ export const upsertTokenObj = async (token: Token) => {
 export const getToken = async (
   user_id: number,
   type: TokenType,
+  session_id: string | null = null,
 ): Promise<Token | null> => {
   const query = `
     SELECT * FROM tokens
     WHERE user_id = $1
     AND type = $2
+    AND session_id = $3
   `;
-  const values = [user_id, type];
+  const values = [user_id, type, session_id];
 
   try {
     const result = await db.query(query, values);

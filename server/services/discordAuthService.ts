@@ -81,6 +81,7 @@ export const loginDiscord = async (
       selectedUser.id,
       TokenType.DiscordAccess,
       accessToken,
+      null,
       discordTokenInfo.expires_in,
     );
 
