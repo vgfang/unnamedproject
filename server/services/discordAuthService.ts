@@ -7,6 +7,11 @@ import * as UserService from "./userService";
 import { TokenType } from "../models/token";
 import { type User } from "../models/user";
 
+export interface loginDiscordResponse {
+  jwtAccess: string;
+  jwtRefresh: string;
+}
+
 // use code to get accessToken, refreshToken
 const getDiscordTokenInfo = async (code: string, redirectURI: string) => {
   const discordUrl = `https://discord.com/api/oauth2/token`;
@@ -52,7 +57,7 @@ const getDiscordInfoUsingToken = async (accessToken: string) => {
 export const loginDiscord = async (
   code: string,
   redirectURI: string,
-): Promise<string> => {
+): Promise<loginDiscordResponse> => {
   try {
     // first, get the access token and info using code
     const discordTokenInfo = await getDiscordTokenInfo(code, redirectURI);
@@ -95,12 +100,20 @@ export const loginDiscord = async (
       );
 
     // lastly return encoded access JWT token to be saved on client
-    if (authResponse.newAccessToken) {
-      const encodedJWTAccessToken = AuthService.encodeJWTToken(
-        selectedUser.id,
-        newSessionId,
+    // also return the encoded refresh JWT token to be saved httponly cookie
+    if (authResponse.newAccessToken && authResponse.newRefreshToken) {
+      const encodedJWTAccessToken = await AuthService.encodeJWTToken(
+        authResponse.newAccessToken.user_id,
+        authResponse.newAccessToken.session_id,
       );
-      return encodedJWTAccessToken;
+      const encodedJWTRefreshToken = await AuthService.encodeJWTToken(
+        authResponse.newRefreshToken.user_id,
+        authResponse.newRefreshToken.session_id,
+      );
+      return {
+        jwtAccess: encodedJWTAccessToken,
+        jwtRefresh: encodedJWTRefreshToken,
+      };
     } else {
       throw new Error("failed to generate jwt access");
     }
