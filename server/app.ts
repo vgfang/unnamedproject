@@ -7,6 +7,15 @@ import { type Express } from "express";
 
 const app: Express = express();
 
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: number;
+    }
+  }
+}
+
 // json middleware
 app.use(express.json());
 
