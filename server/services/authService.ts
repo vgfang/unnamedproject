@@ -46,12 +46,8 @@ const storeJWTToken = async (
     session_id: sessionId,
   };
 
-  try {
-    const jwtToken = await TokenService.upsertTokenObj(token);
-    return jwtToken;
-  } catch (err) {
-    throw err;
-  }
+  const jwtToken = await TokenService.upsertTokenObj(token);
+  return jwtToken;
 };
 
 export const decodeJWTToken = async (jwtToken: string): Promise<Token> => {
@@ -75,77 +71,61 @@ export const tryAuthenticate = async (
   jwtToken: string,
   tokenType: TokenType,
 ): Promise<AuthResponse> => {
-  try {
-    const decodedToken = jwt.verify(jwtToken, JWT_SECRET) as JWTPayload;
-    // verify token exists in db
-    const tokenFromDb = await TokenService.getToken(
-      decodedToken.userId,
-      tokenType,
-      decodedToken.sessionId,
-    );
+  const decodedToken = jwt.verify(jwtToken, JWT_SECRET) as JWTPayload;
+  // verify token exists in db
+  const tokenFromDb = await TokenService.getToken(
+    decodedToken.userId,
+    tokenType,
+    decodedToken.sessionId,
+  );
 
-    if (
-      tokenFromDb &&
-      (tokenFromDb.expires_at == null || tokenFromDb.expires_at > new Date())
-    ) {
-      // valid token
-      return { success: true, verifiedToken: tokenFromDb };
-    }
-
-    return {
-      success: false,
-      error: `${tokenType} token for ${decodedToken.userId} does not exist`,
-    };
-  } catch (err) {
-    throw err;
+  if (
+    tokenFromDb &&
+    (tokenFromDb.expires_at == null || tokenFromDb.expires_at > new Date())
+  ) {
+    // valid token
+    return { success: true, verifiedToken: tokenFromDb };
   }
+
+  return {
+    success: false,
+    error: `${tokenType} token for ${decodedToken.userId} does not exist`,
+  };
 };
 
 export const createNewAccessAndRefreshTokens = async (
   userId: number,
   sessionId: string,
 ): Promise<AuthResponse> => {
-  try {
-    // refresh access and refresh token
-    const jwtAccess = await storeJWTToken(
-      userId,
-      TokenType.JwtAccess,
-      sessionId,
-    );
-    const jwtRefresh = await storeJWTToken(
-      userId,
-      TokenType.JwtRefresh,
-      sessionId,
-    );
+  // refresh access and refresh token
+  const jwtAccess = await storeJWTToken(userId, TokenType.JwtAccess, sessionId);
+  const jwtRefresh = await storeJWTToken(
+    userId,
+    TokenType.JwtRefresh,
+    sessionId,
+  );
 
-    return {
-      success: true,
-      newAccessToken: jwtAccess,
-      newRefreshToken: jwtRefresh,
-    };
-  } catch (err) {
-    throw err;
-  }
+  return {
+    success: true,
+    newAccessToken: jwtAccess,
+    newRefreshToken: jwtRefresh,
+  };
 };
 
 export const useRefreshToken = async (
   jwtToken: string,
 ): Promise<AuthResponse> => {
-  try {
-    // need to verify token exists in db
-    const authRes = await tryAuthenticate(jwtToken, TokenType.JwtRefresh);
-    if (authRes.success) {
-      const decodedToken = jwt.verify(jwtToken, JWT_SECRET) as JwtPayload;
-      // refresh access and refresh token
-      const resWithTokens = await createNewAccessAndRefreshTokens(
-        decodedToken.userId,
-        decodedToken.sessionId,
-      );
-      return resWithTokens;
-    } else {
-      return { success: false, error: "invalid refresh token" };
-    }
-  } catch (err) {
-    throw err;
+  // need to verify token exists in db
+  const authRes = await tryAuthenticate(jwtToken, TokenType.JwtRefresh);
+  if (authRes.success) {
+    const decodedToken = jwt.verify(jwtToken, JWT_SECRET) as JwtPayload;
+    // refresh access and refresh token
+    const resWithTokens = await createNewAccessAndRefreshTokens(
+      decodedToken.userId,
+      decodedToken.sessionId,
+    );
+    return resWithTokens;
+  } else {
+    return { success: false, error: "invalid refresh token" };
   }
 };

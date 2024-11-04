@@ -17,7 +17,11 @@ export const insertUserIfNotExists = async (
     const result = await db.query(query, values);
     return result.rows[0];
   } catch (err) {
-    throw err;
+    if (err instanceof Error) {
+      throw new Error(`Failed to insert user: ${err?.message}`);
+    } else {
+      throw err;
+    }
   }
 };
 
@@ -32,6 +36,10 @@ export const selectUserUsingDiscordID = async (discordId: string) => {
     const result = await db.query(query, values);
     return result.rows[0];
   } catch (err) {
-    throw err;
+    if (err instanceof Error) {
+      throw new Error(`Failed to select user using discordId: ${err?.message}`);
+    } else {
+      throw err;
+    }
   }
 };
