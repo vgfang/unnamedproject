@@ -20,3 +20,16 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+* {
+  font-family: monospace;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  border: 1px solid black;
+  padding: 0.2rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
