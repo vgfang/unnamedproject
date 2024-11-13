@@ -1,4 +1,4 @@
-import db from "../config/pgConfig";
+import db from "../config/knex";
 
 export const insertUserIfNotExists = async (
   email: string,
@@ -7,14 +7,14 @@ export const insertUserIfNotExists = async (
 ) => {
   const query = `
     INSERT INTO users (email, username, discord_id)
-    VALUES ($1, $2, $3)
+    VALUES (?, ?, ?)
     ON CONFLICT (email) DO NOTHING
     RETURNING *;
   `;
   const values = [email, username, discordId];
 
   try {
-    const result = await db.query(query, values);
+    const result = await db.raw(query, values);
     return result.rows[0];
   } catch (err) {
     if (err instanceof Error) {
@@ -26,15 +26,12 @@ export const insertUserIfNotExists = async (
 };
 
 export const selectUserUsingDiscordID = async (discordId: string) => {
-  const query = `
-    SELECT * FROM users
-    WHERE discord_id = ($1);
-  `;
-  const values = [discordId];
-
   try {
-    const result = await db.query(query, values);
-    return result.rows[0];
+    const result = await db("users")
+      .select("*")
+      .where({ discord_id: discordId })
+      .first();
+    return result;
   } catch (err) {
     if (err instanceof Error) {
       throw new Error(`Failed to select user using discordId: ${err?.message}`);

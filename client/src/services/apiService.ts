@@ -60,4 +60,11 @@ export const registerOrLoginUser = async (
   email: string,
   password: string,
   isLoggingIn: boolean,
-) => {};
+) => {
+  const body = { email: email, password: password };
+  if (isLoggingIn) {
+    return await api.post("auth/login-email", body);
+  } else {
+    return await api.post("auth/register-email", body);
+  }
+};

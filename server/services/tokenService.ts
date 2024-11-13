@@ -1,4 +1,4 @@
-import db from "../config/pgConfig";
+import db from "../config/knex";
 import { type Token, TokenType } from "../models/token";
 
 export const upsertToken = async (
@@ -11,7 +11,7 @@ export const upsertToken = async (
   // upsert
   const query = `
     INSERT INTO tokens (user_id, type, value, session_id, expires_at)
-    VALUES ($1, $2, $3, $4, $5)
+    VALUES (?, ?, ?, ?, ?)
     ON CONFLICT (user_id, type, session_id)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
@@ -40,7 +40,7 @@ export const upsertToken = async (
   ];
 
   try {
-    const result = await db.query(query, values);
+    const result = await db.raw(query, values);
     return result.rows[0];
   } catch (error) {
     throw new Error("Failed to insert token");
@@ -62,7 +62,7 @@ export const upsertTokenObj = async (token: Token) => {
   // upsert
   const query = `
     INSERT INTO tokens (user_id, type, value, session_id, info, expires_at)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES (?, ?, ?, ?, ?, ?)
     ON CONFLICT (user_id, type, session_id)
     DO UPDATE SET value = EXCLUDED.value
     RETURNING *;
@@ -78,7 +78,7 @@ export const upsertTokenObj = async (token: Token) => {
   ];
 
   try {
-    const result = await db.query(query, values);
+    const result = await db.raw(query, values);
     return result.rows[0];
   } catch (error) {
     throw new Error("Failed to insert token");
@@ -94,14 +94,14 @@ export const getToken = async (
 ): Promise<Token | null> => {
   const query = `
     SELECT * FROM tokens
-    WHERE user_id = $1
-    AND type = $2
-    AND session_id = $3
+    WHERE user_id = ? 
+    AND type = ?
+    AND session_id = ?
   `;
   const values = [user_id, type, session_id];
 
   try {
-    const result = await db.query(query, values);
+    const result = await db.raw(query, values);
     if (result.rows.length === 0) {
       return null;
     } else {
