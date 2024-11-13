@@ -1,5 +1,6 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
 
 import * as TokenService from "./tokenService";
 import { type Token, TokenType } from "../models/token";
@@ -141,6 +142,35 @@ export const useRefreshToken = async (
   }
 };
 
+export const generateLoginTokensUsingUserId = async (userId: number) => {
+  // then, save jwt access token and jwt refreshToken
+  const newSessionId = uuidv4();
+  const authResponse: AuthResponse = await createNewAccessAndRefreshTokens(
+    userId,
+    newSessionId,
+  );
+
+  // lastly return encoded access JWT token to be saved on client
+  // also return the encoded refresh JWT token to be saved httponly cookie
+  if (authResponse.newAccessToken && authResponse.newRefreshToken) {
+    const encodedJWTAccessToken = await encodeJWTToken(
+      authResponse.newAccessToken.user_id,
+      authResponse.newAccessToken.session_id,
+    );
+    const encodedJWTRefreshToken = await encodeJWTToken(
+      authResponse.newRefreshToken.user_id,
+      authResponse.newRefreshToken.session_id,
+    );
+    return {
+      success: true,
+      jwtAccess: encodedJWTAccessToken,
+      jwtRefresh: encodedJWTRefreshToken,
+    };
+  } else {
+    return { success: false, error: "failed to generate jwt access" };
+  }
+};
+
 export const registerUserViaEmail = async (
   email: string,
   password: string,
@@ -164,10 +194,7 @@ export const registerUserViaEmail = async (
   }
 };
 
-export const loginUserViaEmail = async (
-  email: string,
-  password: string,
-): Promise<AuthResponse> => {
+export const loginUserViaEmail = async (email: string, password: string) => {
   const existingUser = await UserService.selectUserUsingEmail(email);
   if (!existingUser) {
     return { success: false, error: "failed to find account with email" };
@@ -188,6 +215,5 @@ export const loginUserViaEmail = async (
 
   // successfully matched
   console.log("successfully logged in");
-  // TODO: add in the token logic
-  return { success: true };
+  return await generateLoginTokensUsingUserId(existingUser.id);
 };

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     discord_id BIGINT UNIQUE,
     username VARCHAR(40) NOT NULL UNIQUE,
-    password TEXT,
+    password VARCHAR(64),
     display_name VARCHAR(64),
     email VARCHAR(320) NOT NULL UNIQUE,
     verified BOOLEAN DEFAULT FALSE,

@@ -28,6 +28,8 @@ export const authMiddleware = async (
       TokenType.JwtAccess,
     );
 
+    console.log(authResult);
+
     if (authResult.success && "verifiedToken" in authResult) {
       // set userId in request for controllers to use
       const decodedToken = authResult.verifiedToken;
