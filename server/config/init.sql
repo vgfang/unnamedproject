@@ -6,8 +6,10 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     discord_id BIGINT UNIQUE,
     username VARCHAR(40) NOT NULL UNIQUE,
+    password TEXT,
     display_name VARCHAR(64),
     email VARCHAR(320) NOT NULL UNIQUE,
+    verified BOOLEAN DEFAULT FALSE,
     banned_at TIMESTAMPTZ DEFAULT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

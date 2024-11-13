@@ -4,6 +4,7 @@ export interface User {
   id: number;
   discord_id: bigint | null;
   username: string;
+  password: string | null;
   display_name: string | null;
   email: string;
   banned_at: Date;

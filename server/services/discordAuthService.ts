@@ -1,5 +1,5 @@
 import axios from "axios";
-import { v4 as uuidv4, v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 import * as TokenService from "./tokenService";
 import * as AuthService from "./authService";
@@ -74,10 +74,8 @@ export const loginDiscord = async (
     if (!selectedUser) {
       // if user does not exist, make a new user
       console.log("user does not exist");
-      const defaultUsername = `user${uuidv4()}`;
       selectedUser = await UserService.insertUserIfNotExists(
         discordInfo.email,
-        defaultUsername,
         discordInfo.id,
       );
     }

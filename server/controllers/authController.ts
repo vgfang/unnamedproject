@@ -1,8 +1,8 @@
 import { type Response, type Request, type NextFunction } from "express";
-import { v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 import * as DiscordAuthService from "../services/discordAuthService";
-import * as authService from "../services/authService";
+import * as AuthService from "../services/authService";
 
 import { type User } from "../models/user";
 
@@ -37,16 +37,33 @@ export const loginViaDiscord = async (
   }
 };
 
-// export const registerViaEmail = async (
-//   req: Request,
-//   res: Response,
-// ): Promise<void> => {
-//   try {
-//   } catch (error) {
-//     res.status(500).json({ error: error });
-//     return;
-//   }
-// };
+export const registerViaEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+    AuthService.registerUserViaEmail(email, password);
+    res.status(200).json({ message: "successfully registered using email" });
+  } catch (error) {
+    res.status(500).json({ error: error });
+    return;
+  }
+};
+
+export const loginViaEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+    AuthService.loginUserViaEmail(email, password);
+    res.status(200).json({ message: "successfully registered using email" });
+  } catch (error) {
+    res.status(500).json({ error: error });
+    return;
+  }
+};
 
 export const logout = async (req: Request, res: Response) => {};
 

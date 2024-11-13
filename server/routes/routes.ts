@@ -19,6 +19,8 @@ router.post("/get-token", tokenCtr.getToken);
 
 // auth
 router.post("/auth/login-discord", authCtr.loginViaDiscord);
+router.post("/auth/login-email", authCtr.loginViaEmail);
+router.post("/auth/register-email", authCtr.registerViaEmail);
 
 // protected routes
 router.get("/protected", authMiddleware, (req, res) => {

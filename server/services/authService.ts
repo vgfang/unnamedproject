@@ -1,7 +1,9 @@
 import jwt, { type JwtPayload } from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 import * as TokenService from "./tokenService";
 import { type Token, TokenType } from "../models/token";
+import * as UserService from "./userService";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -16,6 +18,15 @@ export type AuthResponse = {
   newAccessToken?: Token;
   newRefreshToken?: Token;
   verifiedToken?: Token;
+};
+
+const hashPassword = async (password: string): Promise<string> => {
+  const saltRounds = 8;
+  return await bcrypt.hash(password, saltRounds);
+};
+
+const verifyPassword = async (password: string, hashedPassword: string) => {
+  return await bcrypt.compare(password, hashedPassword);
 };
 
 const storeJWTToken = async (
@@ -128,4 +139,55 @@ export const useRefreshToken = async (
   } else {
     return { success: false, error: "invalid refresh token" };
   }
+};
+
+export const registerUserViaEmail = async (
+  email: string,
+  password: string,
+): Promise<AuthResponse> => {
+  const existingUser = await UserService.selectUserUsingEmail(email);
+  const hashedPassword = await hashPassword(password);
+
+  if (!existingUser) {
+    const insertUserRes = await UserService.insertUserIfNotExists(
+      email,
+      null,
+      hashedPassword,
+    );
+    if (insertUserRes) {
+      return { success: true };
+    } else {
+      return { success: false, error: "failed to add user" };
+    }
+  } else {
+    return { success: false, error: "user already exists" };
+  }
+};
+
+export const loginUserViaEmail = async (
+  email: string,
+  password: string,
+): Promise<AuthResponse> => {
+  const existingUser = await UserService.selectUserUsingEmail(email);
+  if (!existingUser) {
+    return { success: false, error: "failed to find account with email" };
+  }
+
+  if (!existingUser.password) {
+    return { success: false, error: "account has no password" };
+  }
+
+  const verifiedUserBoolean = await verifyPassword(
+    password,
+    existingUser.password,
+  );
+
+  if (!verifiedUserBoolean) {
+    return { success: false, error: "failed to match password" };
+  }
+
+  // successfully matched
+  console.log("successfully logged in");
+  // TODO: add in the token logic
+  return { success: true };
 };
