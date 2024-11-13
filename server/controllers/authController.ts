@@ -24,9 +24,8 @@ export const loginViaDiscord = async (
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
     });
 
-    console.log("Hey");
-
     res.status(200).json({
+      success: true,
       message: "successfully logged in via discord",
       jwtAccess: discordLoginResp.jwtAccess,
     });
@@ -43,10 +42,32 @@ export const registerViaEmail = async (
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
-    AuthService.registerUserViaEmail(email, password);
-    res.status(200).json({ message: "successfully registered using email" });
+    // server side validation
+    if (!email) {
+      res
+        .status(400)
+        .json({ successs: false, message: "email cannot be empty" });
+    } else if (!password || password.length <= 6) {
+      res.status(400).json({
+        success: false,
+        message: "password must be at least 7 chars long",
+      });
+    }
+
+    const registerRes = await AuthService.registerUserViaEmail(email, password);
+    if (registerRes.success) {
+      res.status(200).json({
+        success: true,
+        message: "successfully registered using email",
+      });
+    } else if (registerRes.hasOwnProperty("error")) {
+      res.status(400).json({ success: false, message: registerRes.error });
+    } else {
+      res.status(500).json({ success: false, message: "unspecified" });
+    }
+    return;
   } catch (error) {
-    res.status(500).json({ error: error });
+    res.status(500).json({ success: false, error: error });
     return;
   }
 };
@@ -58,9 +79,11 @@ export const loginViaEmail = async (
   try {
     const { email, password } = req.body;
     AuthService.loginUserViaEmail(email, password);
-    res.status(200).json({ message: "successfully registered using email" });
+    res
+      .status(200)
+      .json({ success: true, message: "successfully registered using email" });
   } catch (error) {
-    res.status(500).json({ error: error });
+    res.status(500).json({ success: false, error: error });
     return;
   }
 };

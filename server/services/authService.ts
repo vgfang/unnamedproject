@@ -147,7 +147,7 @@ export const registerUserViaEmail = async (
 ): Promise<AuthResponse> => {
   const existingUser = await UserService.selectUserUsingEmail(email);
   const hashedPassword = await hashPassword(password);
-
+  console.log(email);
   if (!existingUser) {
     const insertUserRes = await UserService.insertUserIfNotExists(
       email,
